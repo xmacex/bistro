@@ -3,8 +3,8 @@
 -- by: @cfd90
 -- originally by: @stretta
 --
--- on play page
---   E2 cutoff, E3 pw, K3 latch
+-- on play page K3 to latch
+--  E2, E3, K2+E2, K2+E3 voice
 -- other pages K3 to randomize
 
 engine.name = "KarplusRings"
@@ -16,6 +16,7 @@ local midi_lib = include("lib/midi_lib")
 
 local g
 local clk
+local filter_ctrl = 0
 local latch = 0
 
 local pages = {"PLAY", "PATTERNS", "LENGTHS"}
@@ -265,9 +266,17 @@ function enc(n, d)
   if page == 1 then
     -- PLAY
     if n == 2 then
-      params:delta("cutoff", d)
+      if filter_ctrl == 1 then
+         params:delta("lpf_freq", d)
+      else
+	 params:delta("damping", d)
+      end
     elseif n == 3 then
-      params:delta("pw", d)
+      if filter_ctrl == 1 then
+         params:delta("bpf_freq", d)
+      else
+	 params:delta("brightness", d)
+      end
     end
   end
   
@@ -279,7 +288,9 @@ function key(n, z)
   if page == 1 then
     -- PLAY
     -- todo: random notes?
-     if n == 3 then
+     if n == 2 then
+	filter_ctrl = z
+     elseif n == 3 then
 	latch = z
      end
   elseif page == 2 and z == 1 then
