@@ -27,7 +27,7 @@ function init()
   g = grid.connect()
   g.key = grid_key
   
-  params:add_separator("sequence")
+  params:add_separator("press cafe")
   params:add_option("clock_rate", "clock rate", {1, 2, 4, 8, 16}, 4)
   params:add_group("note data", 1 + g.cols)
   params:add_number("base_note", "base note", 1, 127, 48)
@@ -256,9 +256,9 @@ end
 function enc(n, d)
   if n == 1 then
     page = util.clamp(page + d, 1, #pages)
-
+    
     for i=1,g.cols do
-       tracks[i] = { counter = nil, pattern = nil }
+      tracks[i] = { counter = nil, pattern = nil }
     end
   end
   
