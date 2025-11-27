@@ -2,6 +2,10 @@
 -- "press cafe" remake
 -- by: @cfd90
 -- originally by: @stretta
+--
+-- on play page
+--   E2 cutoff, E3 pw, K3 latch
+-- other pages K3 to randomize
 
 engine.name = "KarplusRings"
 
@@ -12,6 +16,7 @@ local midi_lib = include("lib/midi_lib")
 
 local g
 local clk
+local latch = 0
 
 local pages = {"PLAY", "PATTERNS", "LENGTHS"}
 local page = 1
@@ -22,7 +27,7 @@ function init()
   g = grid.connect()
   g.key = grid_key
   
-  params:add_separator()
+  params:add_separator("sequence")
   params:add_option("clock_rate", "clock rate", {1, 2, 4, 8, 16}, 4)
   params:add_group("note data", 1 + g.cols)
   params:add_number("base_note", "base note", 1, 127, 48)
@@ -54,12 +59,13 @@ function init()
         grid_dirty = true
       end)
     end
+
   end
   
-  params:add_separator()
+  params:add_separator("rings")
   rings.params()
   
-  params:add_separator()
+  params:add_separator("halfsecond")
   hs.init()
   
   midi_lib.init()
@@ -173,7 +179,7 @@ function grid_key(x, y, z)
     if z == 1 and tracks[x].counter == nil then
       tracks[x].pattern = y
       tracks[x].counter = 1
-    elseif z == 0 then
+    elseif z == 0 and latch ~= 1 then
       tracks[x].pattern = nil
       tracks[x].counter = nil
       midi_out:note_off(tracks[x].active_note)
@@ -250,9 +256,9 @@ end
 function enc(n, d)
   if n == 1 then
     page = util.clamp(page + d, 1, #pages)
-    
+
     for i=1,g.cols do
-      tracks[i] = { counter = nil, pattern = nil }
+       tracks[i] = { counter = nil, pattern = nil }
     end
   end
   
@@ -270,14 +276,13 @@ function enc(n, d)
 end
 
 function key(n, z)
-  if z == 0 then
-    return
-  end
-  
   if page == 1 then
     -- PLAY
     -- todo: random notes?
-  elseif page == 2 then
+     if n == 3 then
+	latch = z
+     end
+  elseif page == 2 and z == 1 then
     -- PATTERNS
     if n == 3 then
       for i=1,g.cols do
@@ -286,7 +291,7 @@ function key(n, z)
         end
       end
     end
-  elseif page == 3 then
+  elseif page == 3 and z == 1 then
     -- LENGTH
     if n == 3 then
       for i=1,g.cols do
