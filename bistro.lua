@@ -177,10 +177,10 @@ end
 function grid_key(x, y, z)
   if page == 1 then
     -- PLAY
-    if z == 1 and tracks[x].counter == nil then
+    if z == 1 and tracks[x].counter == nil or latch == 1 then
       tracks[x].pattern = y
       tracks[x].counter = 1
-    elseif z == 0 and latch ~= 1 then
+    elseif z == 0 then
       tracks[x].pattern = nil
       tracks[x].counter = nil
       midi_out:note_off(tracks[x].active_note)
