@@ -324,7 +324,7 @@ function redraw()
     for i=1,g.cols do
       local track = tracks[i]
       
-      screen.move(10 + (i-1)*10, 36)
+      screen.move(i*(128/(g.cols+1)), 36)
       
       if track.pattern ~= nil and track.counter ~= nil then
         local p = get_pattern(track.pattern)
